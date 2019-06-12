@@ -2,29 +2,37 @@ require "pdf-reader"
 require_relative '../importers'
 
 class Importers::PdfEcad
-  CATEGORIES = {"CA" => "Author", "E" => "Publisher", "V" => "Versionist", "SE" => "SubPublisher"}
-  @line = ""
+  NAME = 12
+  TITLE = 34
+  PSEUDO = 50
+  SOCIETY_NAME = 80
+  SITUATION = 90
 
+
+  CATEGORIES = {"CA" => "Author", "E" => "Publisher", "V" => "Versionist", "SE" => "SubPublisher"}
    def initialize(path)
-     file = PDF::Reader.new(path)
-     @text = []
-     file.pages.each { |page|  @text += page.text.each_line.map{ |line| line } }
+     @all_works = []
+     @path = path
+     @line = ""
    end
 
    def works
-     all_works = []
+     return @all_works unless @all_works.length == 0
+
+     file = PDF::Reader.new(@path)
+     text =[]
      actual_work = {}
-     @text.each do |line|
-       @line = line
-       if work?
-         all_works<< actual_work if actual_work != {}
-         actual_work = work @line
-       end
-       if holder?
-         actual_work[:right_holders]<< right_holder(@line)
+     file.pages.each do |page|
+       page.text.each_line do |line|
+         @line = line
+         if work?
+           @all_works<< actual_work if actual_work != {}
+           actual_work = work @line
+         end
+        actual_work[:right_holders]<< right_holder(@line) if holder?
        end
      end
-     all_works<< actual_work
+     @all_works<< actual_work
    end
 
    def right_holder(line)
@@ -74,47 +82,52 @@ class Importers::PdfEcad
    end
 
    def ipi
-     ipi_ = clean_string(@line.length - 65," ").gsub(".","")
+     ipi_ = match(/[0-9]?[0-9]?[0-9]\.[0-9]?[0-9]?[0-9]\.[0-9]?[0-9]?[0-9]\.[0-9]?[0-9]?[0-9]/).gsub(".","")
      return ipi_ if ipi_.length > 0
 
    end
 
     def role
-     CATEGORIES[@line.slice(106..110).strip]
+     CATEGORIES[match(/[A-Z][A-Z]/, 106)]
     end
 
    def share
-    @line.slice(110..115).strip.gsub(",",".").to_f
+    match(/[0-9]?[0-9]?[0-9]\,[0-9]?[0-9]?[0-9]?/).gsub(",",".").to_f
    end
 
    def name
-     clean_string 12
+     words NAME
    end
 
    def title
-     clean_string 34
+     words TITLE
    end
 
    def pseudo
-     clean_string 50
+     words PSEUDO
    end
 
    def society_name
-     clean_string @line.length - 52
+     words SOCIETY_NAME
    end
 
    def situation
-     @line.slice(90..110).strip
+    words SITUATION
    end
 
    def created_at
-     @line.slice(@line.length-11..).strip
+     match(/[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9]/)
    end
 
 
-   def clean_string(position, pattern="  ")
-     @line.slice(position..(position + 1 + @line.slice(position + 2..).index(pattern))).strip
+   def words(index)
+     match(/(?<=\s)([^\s].*?)(?=\s\s)/, index)
    end
+
+   def match(regex, index = 0)
+     @line.slice(index..).match(regex).to_s
+   end
+
 
    def holder?
      @line.length>123 and @line =~ /^[0-9]/ and not @line =~ /^[0-9][0-9]\/[0-9][0-9]/
