@@ -1,4 +1,5 @@
 require "pdf-reader"
+require_relative '../importers'
 
 class Importers::PdfEcad
   CATEGORIES = {"CA" => "Author", "E" => "Publisher", "V" => "Versionist", "SE" => "SubPublisher"}
