@@ -30,13 +30,13 @@ class Importers::PdfEcad
        page.text.each_line do |line|
          @line = line
          if work?
-           @all_works<< actual_work unless actual_work == {}
+           @all_works << actual_work unless actual_work == {}
            actual_work = work line
          end
-        actual_work[:right_holders]<< right_holder(line) if holder?
+        actual_work[:right_holders] << right_holder(line) if holder?
        end
      end
-     @all_works<< actual_work
+     @all_works << actual_work
    end
 
    def right_holder(line)
@@ -86,7 +86,7 @@ class Importers::PdfEcad
    end
 
    def ipi
-     ipi_ = match(/[0-9]?[0-9]?[0-9]\.[0-9]?[0-9]?[0-9]\.[0-9]?[0-9]?[0-9]\.[0-9]?[0-9]?[0-9]/).gsub(".","")
+     ipi_ = match(/[0-9]?[0-9]?[0-9]\.[0-9]?[0-9]?[0-9]\.[0-9]?[0-9]?[0-9]\.[0-9]?[0-9]?[0-9]/).gsub(".", "")
      return ipi_ if ipi_.length > 0
 
    end
@@ -96,7 +96,7 @@ class Importers::PdfEcad
     end
 
    def share
-    match(/[0-9]?[0-9]?[0-9]\,[0-9]?[0-9]?[0-9]?/).gsub(",",".").to_f
+    match(/[0-9]?[0-9]?[0-9]\,[0-9]?[0-9]?[0-9]?/).gsub(",", ".").to_f
    end
 
    def name
