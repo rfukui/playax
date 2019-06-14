@@ -7,9 +7,13 @@ class Importers::PdfEcad
   PSEUDO = 50
   SOCIETY_NAME = 80
   SITUATION = 90
+  CATEGORIES = {
+    "CA" => "Author",
+    "E" => "Publisher",
+    "V" => "Versionist",
+    "SE" => "SubPublisher"
+  }
 
-
-  CATEGORIES = {"CA" => "Author", "E" => "Publisher", "V" => "Versionist", "SE" => "SubPublisher"}
    def initialize(path)
      @all_works = []
      @path = path
@@ -26,10 +30,10 @@ class Importers::PdfEcad
        page.text.each_line do |line|
          @line = line
          if work?
-           @all_works<< actual_work if actual_work != {}
-           actual_work = work @line
+           @all_works<< actual_work unless actual_work == {}
+           actual_work = work line
          end
-        actual_work[:right_holders]<< right_holder(@line) if holder?
+        actual_work[:right_holders]<< right_holder(line) if holder?
        end
      end
      @all_works<< actual_work
@@ -88,7 +92,7 @@ class Importers::PdfEcad
    end
 
     def role
-     CATEGORIES[match(/[A-Z][A-Z]/, 106)]
+     CATEGORIES[match(/[A-Z]?[A-Z]/, 105)]
     end
 
    def share

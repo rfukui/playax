@@ -9,10 +9,10 @@ describe "Ecad PDF Import" do
     expect(@importer.works.count).to eq(130)
     expect(@importer.works[0][:iswc]).to eq("T-039.782.970-7")
     expect(@importer.works.last[:external_ids][0][:source_id]).to eq("126227")
-    expect(@importer.works[9][:right_holders].size).to eq(4)
     expect(@importer.works[4][:right_holders][1][:society_name]).to eq("UBC")
-    expect(@importer.works[15][:right_holders][0][:role]).to eq("Versionist")
+    expect(@importer.works[9][:right_holders].size).to eq(4)
     expect(@importer.works[9][:right_holders][2][:share]).to eq(25.00)
+    expect(@importer.works[15][:right_holders][0][:role]).to eq("Versionist")
   end
 
   it "should recognize a right holder for 100% line" do
